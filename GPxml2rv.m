@@ -1,4 +1,4 @@
-function [satrec, startmfe, stopmfe, deltamin] = GPxml2rv(whichconst, struct, typerun,typeinput)
+function [satrec, startmfe, stopmfe, deltamin] = GPxml2rv(whichconst, tumin, struct)
 %This function replaces the old twoline2rv.m that was used to read two
 %strings of TLE and produced the satrec structure used the the SGP4
 %implementation.
@@ -10,7 +10,7 @@ function [satrec, startmfe, stopmfe, deltamin] = GPxml2rv(whichconst, struct, ty
 %
 %sat_num_i_struct = GPxml.omm(i).body.segment.data
 
-    global tumin radiusearthkm xke j2 j3 j4 j3oj2  
+    %global tumin;
 
     %deg2rad  =   pi / 180.0;         %  0.01745329251994330;  % [deg/rad]
     xpdotp   =  1440.0 / (2.0*pi);   % 229.1831180523293;  % [rev/day]/[rad/min]  
