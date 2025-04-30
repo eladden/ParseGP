@@ -24,3 +24,5 @@ fn = fieldnames(satrec_new);
 for i = 1 : numel(fn)
   err.(fn{i}) = abs(satrec_new.(fn{i}) - satrec_old.(fn{i}));
 end
+
+%
