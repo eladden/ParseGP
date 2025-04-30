@@ -13,7 +13,7 @@ function [satrec, startmfe, stopmfe, deltamin] = GPxml2rv(whichconst, consts, st
     %global tumin;
 
     %deg2rad  =   pi / 180.0;         %  0.01745329251994330;  % [deg/rad]
-    xpdotp   =  1440.0 / (2.0*pi);   % 229.1831180523293;  % [rev/day]/[rad/min]  
+    xpdotp   =  1440.0 / (2.0*pi);   %  229.1831180523293;  % [rev/day]/[rad/min]  
 
  
     satrec.error = 0;
