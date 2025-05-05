@@ -1,8 +1,8 @@
-function [m,A,r,v] = generateList(filename, consts,whichconsts, minA, maxA)
+function [m,A,epoch,r,v] = generateList(filename, consts,whichconsts, minA, maxA)
 %This function generates a list of satellites from an xml file.
 %Usage:
-% [m,A,r,v] = generateList(filename, consts)
-% [m,A,r,v] = generateList(filename, consts, minA, maxA)
+% [m,A,epoch,r,v] = generateList(filename, consts)
+% [m,A,epoch,r,v] = generateList(filename, consts, minA, maxA)
 %
 %Where:
 %   filename - an xml file containing the TLE info
@@ -13,6 +13,7 @@ function [m,A,r,v] = generateList(filename, consts,whichconsts, minA, maxA)
 %   m - vector of length n containins the satellites' masses
 %   A - a vector of length n containins the satellites' crossectional area 
 %   (for drag and SRP)
+%   epoch - times at which the state was taken
 %   r - a matrix of nX3 containing the positions od the satellites
 %   v - a matrix of nX3 containing the velocity of the satellites.
 %
@@ -33,6 +34,7 @@ r = zeros(numberOfsats,3);
 v = zeros(numberOfsats,3);
 m = zeros(numberOfsats,1);
 A = zeros(numberOfsats,1);
+epoch = zeros(numberOfsats,1);
 
 numOfDecayed = 0;
 listCount = 1;
@@ -47,6 +49,7 @@ for i = 1:numberOfsats
     end
     % Genetate the R and v
     satrec = GPxml2rv(whichconsts,consts,satstructxml);
+    ep_ = satrec.jdsatepoch;
     [~,r_,v_] = sgp4(satrec,0,consts);
 
     %check if the data has RCS_SIZE
@@ -75,6 +78,7 @@ for i = 1:numberOfsats
     v(listCount,:) = v_;
     A(listCount) = A_;
     m(listCount) = m_;
+    epoch(listCount) = ep_;
 
     listCount = listCount+1;
 end %end for
@@ -83,4 +87,5 @@ r = r(1:end-numOfDecayed,:);
 v = v(1:end-numOfDecayed,:);
 A = A(1:end-numOfDecayed)*1e-6; %km^2
 m = m(1:end-numOfDecayed);
+epoch = epoch(1:end-numOfDecayed);
 end
