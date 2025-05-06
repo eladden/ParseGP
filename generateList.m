@@ -1,4 +1,4 @@
-function [m,A,epoch,r,v] = generateList(filename, consts,whichconsts, minA, maxA)
+function [m,A,epoch,r,v] = generateList(filename, timefilecreated,maxdur, consts,whichconsts, minA, maxA)
 %This function generates a list of satellites from an xml file.
 %Usage:
 % [m,A,epoch,r,v] = generateList(filename, consts)
@@ -34,9 +34,10 @@ r = zeros(numberOfsats,3);
 v = zeros(numberOfsats,3);
 m = zeros(numberOfsats,1);
 A = zeros(numberOfsats,1);
-epoch = zeros(numberOfsats,1);
+epoch = NaT(numberOfsats,1);
 
 numOfDecayed = 0;
+numOfStale = 0;
 listCount = 1;
 
 for i = 1:numberOfsats
@@ -47,9 +48,13 @@ for i = 1:numberOfsats
         numOfDecayed = numOfDecayed +1;
         continue
     end
+    if abs(timefilecreated - satstructxml.meanElements.EPOCH) > maxdur %The epoch was longer than maximal duration
+        numOfStale = numOfStale + 1;
+        continue
+    end
     % Genetate the R and v
     satrec = GPxml2rv(whichconsts,consts,satstructxml);
-    ep_ = satrec.jdsatepoch;
+    ep_ = satstructxml.meanElements.EPOCH;
     [~,r_,v_] = sgp4(satrec,0,consts);
 
     %check if the data has RCS_SIZE
@@ -58,7 +63,7 @@ for i = 1:numberOfsats
     if isa(RCS_size,"string")
         switch satstructxml.userDefinedParameters.USER_DEFINED(RCSPlace).Text
             case "SMALL"
-                minA = 0.001;
+                minA = 0.01;
                 maxA = 0.1;
             case "MEDIUM"
                 minA = 0.1;
@@ -68,10 +73,9 @@ for i = 1:numberOfsats
                 maxA = 10;
         end
     end
-    A_ = rand*(maxA-minA)+minA; %generate a random size
-    %we are assuming that most debris are small sheet metals made of
-    %aluminum
-    m_ = A_*5e-5*2700; %kg
+    A_ = RCS2size(rand*(maxA-minA)+minA); %generate a random size
+    %we want the A/m ratio to be maximum 1e-8 and minimum 1e-9 
+    m_ = A_*1e-6/(rand*(1e-9-1e-8)+ 1e-8);
     
     %add to database
     r(listCount,:) = r_;
@@ -83,9 +87,9 @@ for i = 1:numberOfsats
     listCount = listCount+1;
 end %end for
 %
-r = r(1:end-numOfDecayed,:);
-v = v(1:end-numOfDecayed,:);
-A = A(1:end-numOfDecayed)*1e-6; %km^2
-m = m(1:end-numOfDecayed);
-epoch = epoch(1:end-numOfDecayed);
+r = r(1:end-numOfDecayed-numOfStale,:);
+v = v(1:end-numOfDecayed-numOfStale,:);
+A = A(1:end-numOfDecayed-numOfStale)*1e-6; %km^2
+m = m(1:end-numOfDecayed-numOfStale);
+epoch = epoch(1:end-numOfDecayed-numOfStale);
 end
