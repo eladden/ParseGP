@@ -1,4 +1,4 @@
-function [satrec, startmfe, stopmfe, deltamin] = GPxml2rv(whichconst, consts, struct)
+function [satrec, startmfe, stopmfe, deltamin] = GPxml2rv(whichconst, opsmode,consts, struct)
 %This function replaces the old twoline2rv.m that was used to read two
 %strings of TLE and produced the satrec structure used the the SGP4
 %implementation.
@@ -40,5 +40,6 @@ function [satrec, startmfe, stopmfe, deltamin] = GPxml2rv(whichconst, consts, st
 
 
     sgp4epoch = satrec.jdsatepoch - 2433281.5; % days since 0 Jan 1950
-    [satrec] = sgp4init(whichconst, satrec, satrec.bstar, satrec.ecco, sgp4epoch, ...
-         satrec.argpo, satrec.inclo, satrec.mo, satrec.no, satrec.nodeo,consts);
+    [satrec] = sgp4init( whichconst, opsmode, satrec, satrec.jdsatepoch-2433281.5, satrec.bstar, ...
+        satrec.ndot, satrec.nddot, satrec.ecco, satrec.argpo, satrec.inclo, satrec.mo, satrec.no, ...
+        satrec.nodeo);
