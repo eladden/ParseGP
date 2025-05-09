@@ -1,4 +1,4 @@
-function [satrec, startmfe, stopmfe, deltamin] = GPxml2rv(whichconst, opsmode,consts, struct)
+function [satrec, startmfe, stopmfe, deltamin] = GPjson2rv(whichconst, opsmode,consts, struct)
 %This function replaces the old twoline2rv.m that was used to read two
 %strings of TLE and produced the satrec structure used the the SGP4
 %implementation.
