@@ -1,4 +1,4 @@
-function [satrec, startmfe, stopmfe, deltamin] = GPxml2rv(whichconst, opsmode,consts, struct)
+function [satrec, startmfe, stopmfe, deltamin] = GPjson2rv(whichconst, opsmode,consts, struct)
 %This function replaces the old twoline2rv.m that was used to read two
 %strings of TLE and produced the satrec structure used the the SGP4
 %implementation.
@@ -18,17 +18,17 @@ function [satrec, startmfe, stopmfe, deltamin] = GPxml2rv(whichconst, opsmode,co
  
     satrec.error = 0;
 
-    satrec.satnum = struct.tleParameters.NORAD_CAT_ID;
-    satrec.jdsatepoch = juliandate(struct.meanElements.EPOCH);
-    satrec.ndot = struct.tleParameters.MEAN_MOTION_DOT / (xpdotp*1440.0); % [rad/min^2]
-    satrec.nddot = struct.tleParameters.MEAN_MOTION_DDOT / (xpdotp*1440.0*1440); % [rad/min^3]
-    satrec.bstar = struct.tleParameters.BSTAR;
-    satrec.inclo = deg2rad(struct.meanElements.INCLINATION);
-    satrec.nodeo = deg2rad(struct.meanElements.RA_OF_ASC_NODE);
-    satrec.ecco = struct.meanElements.ECCENTRICITY;
-    satrec.argpo = deg2rad(struct.meanElements.ARG_OF_PERICENTER);
-    satrec.mo = deg2rad(struct.meanElements.MEAN_ANOMALY);
-    satrec.no =  struct.meanElements.MEAN_MOTION / xpdotp;
+    satrec.satnum = struct.NORAD_CAT_ID;
+    satrec.jdsatepoch = juliandate(datetime(struct.EPOCH));
+    satrec.ndot = struct.MEAN_MOTION_DOT / (xpdotp*1440.0); % [rad/min^2]
+    satrec.nddot = struct.MEAN_MOTION_DDOT / (xpdotp*1440.0*1440); % [rad/min^3]
+    satrec.bstar = struct.BSTAR;
+    satrec.inclo = deg2rad(struct.INCLINATION);
+    satrec.nodeo = deg2rad(struct.RA_OF_ASC_NODE);
+    satrec.ecco = struct.ECCENTRICITY;
+    satrec.argpo = deg2rad(struct.ARG_OF_PERICENTER);
+    satrec.mo = deg2rad(struct.MEAN_ANOMALY);
+    satrec.no =  struct.MEAN_MOTION / xpdotp;
 
     tumin = consts(1);
 
