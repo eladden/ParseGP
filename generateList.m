@@ -1,13 +1,14 @@
-function [m,A,epoch,r,v] = generateList(filename, timefilecreated,maxdur, consts,whichconsts, minA, maxA)
+function [m,A,epoch,r,v,satrecList] = generateList(filename, timefilecreated,maxdur, consts,whichconsts, minA, maxA)
 %This function generates a list of satellites from an xml file.
 %Usage:
-% [m,A,epoch,r,v] = generateList(filename, consts)
-% [m,A,epoch,r,v] = generateList(filename, consts, minA, maxA)
+% [m,A,epoch,r,v] = generateList(filename, timefilecreated,maxdur, consts,whichconsts)
+% [m,A,epoch,r,v] = generateList(filename, timefilecreated,maxdur, consts,whichconsts, minA, maxA)
 %
 %Where:
 %   filename - an xml file containing the TLE info
 %   consts,whichconsts -  structures of constants for SGP4, can be generated with
 %   generate_parameters function
+%   timefilecreated - when was the xml file downloaded
 %   minA, maxA - maximal and minimal area to generate random fake info
 %
 %   m - vector of length n containins the satellites' masses
@@ -16,6 +17,8 @@ function [m,A,epoch,r,v] = generateList(filename, timefilecreated,maxdur, consts
 %   epoch - times at which the state was taken
 %   r - a matrix of nX3 containing the positions od the satellites
 %   v - a matrix of nX3 containing the velocity of the satellites.
+%   satrecList - a vector of structures (if you want to use SGP4 for
+%   propagation)
 %
 
 if nargin < 3
@@ -35,6 +38,7 @@ v = zeros(numberOfsats,3);
 m = zeros(numberOfsats,1);
 A = zeros(numberOfsats,1);
 epoch = NaT(numberOfsats,1);
+satrecList = repmat(struct('a',0),numberOfsats,1);
 
 numOfDecayed = 0;
 numOfStale = 0;
@@ -83,7 +87,7 @@ for i = 1:numberOfsats
     A(listCount) = A_;
     m(listCount) = m_;
     epoch(listCount) = ep_;
-
+    satrecList(listCount) = satrec;
     listCount = listCount+1;
 end %end for
 %
@@ -92,4 +96,5 @@ v = v(1:end-numOfDecayed-numOfStale,:);
 A = A(1:end-numOfDecayed-numOfStale)*1e-6; %km^2
 m = m(1:end-numOfDecayed-numOfStale);
 epoch = epoch(1:end-numOfDecayed-numOfStale);
+satrecList = satrecList(1:end-numOfDecayed-numOfStale);
 end
