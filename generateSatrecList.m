@@ -1,4 +1,4 @@
-function [satrecList] = generateSatrecList(filename, timefilecreated,maxdur, consts,whichconsts, minA, maxA)
+function [satrecList] = generateSatrecList(filename, timefilecreated,maxdur, consts,whichconsts)
 %This function generates a list of satellites from an xml file.
 %Usage:
 % [satrecList] = generateSatrecList(filename, timefilecreated,maxdur, consts,whichconsts, minA, maxA)
@@ -19,11 +19,12 @@ numberOfsats = length(GPdata.omm);
 
 %preallocate memory
 
-satrecList = repmat(struct('a',0),numberOfsats,1);
+%satrecList = repmat(struct('a',0),numberOfsats,1);
 
 numOfDecayed = 0;
 numOfStale = 0;
 listCount = 1;
+
 
 for i = 1:numberOfsats
     satstructxml = GPdata.omm(i).body.segment.data;
@@ -38,10 +39,10 @@ for i = 1:numberOfsats
         continue
     end
     % Genetate the R and v
-    satrec = GPxml2rv(whichconsts,consts,satstructxml);
+    satrec = GPxml2rv(whichconsts,'i',consts,satstructxml);
     satrecList(listCount) = satrec;
     listCount = listCount+1;
 end %end for
 %
-satrecList = satrecList(1:end-numOfDecayed-numOfStale);
+%satrecList = satrecList(1:end-numOfDecayed-numOfStale);
 end

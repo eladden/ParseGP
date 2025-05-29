@@ -57,7 +57,7 @@ for i = 1:numberOfsats
         continue
     end
     % Genetate the R and v
-    satrec = GPxml2rv(whichconsts,consts,satstructxml);
+    satrec = GPxml2rv(whichconsts,'i',consts,satstructxml);
     ep_ = satstructxml.meanElements.EPOCH;
     [~,r_,v_] = sgp4(satrec,0,consts);
 
