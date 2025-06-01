@@ -1,14 +1,16 @@
-function [m,A,epoch,r,v,satrecList] = generateList(filename, timefilecreated,maxdur, consts,whichconsts, minA, maxA)
+function [m,A,epoch,r,v,satrecList] = generateList(filename, timefilecreated,maxdur, decaytime,consts,whichconsts,current, minA, maxA)
 %This function generates a list of satellites from an xml file.
 %Usage:
-% [m,A,epoch,r,v] = generateList(filename, timefilecreated,maxdur, consts,whichconsts)
-% [m,A,epoch,r,v] = generateList(filename, timefilecreated,maxdur, consts,whichconsts, minA, maxA)
+% [m,A,epoch,r,v,satrecList] = generateList(filename, timefilecreated,maxdur, decaytime,consts,whichconsts)
+% [m,A,epoch,r,v,satrecList] = generateList(filename, timefilecreated,maxdur, decaytime,consts,whichconsts, minA, maxA)
 %
 %Where:
 %   filename - an xml file containing the TLE info
 %   consts,whichconsts -  structures of constants for SGP4, can be generated with
 %   generate_parameters function
 %   timefilecreated - when was the xml file downloaded
+%   maxdur - how old is the epoch
+%   decaytime - a decay check is present, how long should we check
 %   minA, maxA - maximal and minimal area to generate random fake info
 %
 %   m - vector of length n containins the satellites' masses
@@ -164,11 +166,13 @@ listCount = 1;
 
 for i = 1:numberOfsats
     satstructxml = GPdata.omm(i).body.segment.data;
-    satParamsNames = [satstructxml.userDefinedParameters.USER_DEFINED.parameterAttribute];
-    decayPlace = find(satParamsNames == "DECAY_DATE");
-    if isa(satstructxml.userDefinedParameters.USER_DEFINED(decayPlace).Text,"missing") 
-        numOfDecayed = numOfDecayed +1;
-        continue
+    if ~current
+        satParamsNames = [satstructxml.userDefinedParameters.USER_DEFINED.parameterAttribute];
+        decayPlace = find(satParamsNames == "DECAY_DATE");
+        if isa(satstructxml.userDefinedParameters.USER_DEFINED(decayPlace).Text,"missing") %check if it already decayed
+            numOfDecayed = numOfDecayed +1;
+            continue
+        end
     end
     if abs(timefilecreated - satstructxml.meanElements.EPOCH) > maxdur %The epoch was longer than maximal duration
         numOfStale = numOfStale + 1;
@@ -177,28 +181,39 @@ for i = 1:numberOfsats
     % Genetate the R and v
     satrec = GPxml2rv(whichconsts,'i',consts,satstructxml);
     ep_ = satstructxml.meanElements.EPOCH;
+    new_satrec = sgp4(satrec,decaytime); %check that it does not decay within half a year
+    if new_satrec.error
+        numOfDecayed = numOfDecayed +1;
+        continue
+    end
     [~,r_,v_] = sgp4(satrec,0);%,consts);
 
-    %check if the data has RCS_SIZE
-    RCSPlace = find(satParamsNames == "RCS_SIZE");
-    RCS_size = satstructxml.userDefinedParameters.USER_DEFINED(RCSPlace).Text;
-    if isa(RCS_size,"string")
-        switch satstructxml.userDefinedParameters.USER_DEFINED(RCSPlace).Text
-            case "SMALL"
-                minA = 0.01;
-                maxA = 0.1;
-            case "MEDIUM"
-                minA = 0.1;
-                maxA = 1;
-            case "LARGE"
-                minA = 1;
-                maxA = 10;
+    %check if the data has RCS_SIZE]
+    if exist('satParamsNames', 'var')
+        RCSPlace = find(satParamsNames == "RCS_SIZE");
+        RCS_size = satstructxml.userDefinedParameters.USER_DEFINED(RCSPlace).Text;
+        if isa(RCS_size,"string")
+            switch satstructxml.userDefinedParameters.USER_DEFINED(RCSPlace).Text
+                case "SMALL"
+                    minA = 0.005;
+                    maxA = 0.05;
+                case "MEDIUM"
+                    minA = 0.05;
+                    maxA = 0.5;
+                case "LARGE"
+                    minA = 0.5;
+                    maxA = 5;
+            end
         end
+    else %assume small
+       minA = 0.005;
+       maxA = 0.05; 
     end
+    %get the A and m out of the B* parameter.
+    Atom = satrec.bstar*2/(satrec.radiusearthkm*2.2*2.461e-5);
     A_ = RCS2size(rand*(maxA-minA)+minA); %generate a random size
     %we want the A/m ratio to be maximum 1e-8 and minimum 1e-9 
-    m_ = A_*1e-6/(rand*(1e-9-1e-8)+ 1e-8);
-    
+    m_ = A_/Atom;
     %add to database
     r(listCount,:) = r_;
     v(listCount,:) = v_;

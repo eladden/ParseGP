@@ -20,6 +20,7 @@ function [satrec, startmfe, stopmfe, deltamin] = GPxml2rv(whichconst, opsmode,co
 
     satrec.satnum = struct.tleParameters.NORAD_CAT_ID;
     satrec.jdsatepoch = juliandate(struct.meanElements.EPOCH);
+    satrec.no =  struct.meanElements.MEAN_MOTION / xpdotp; %[rad/min]
     satrec.ndot = struct.tleParameters.MEAN_MOTION_DOT / (xpdotp*1440.0); % [rad/min^2]
     satrec.nddot = struct.tleParameters.MEAN_MOTION_DDOT / (xpdotp*1440.0*1440); % [rad/min^3]
     satrec.bstar = struct.tleParameters.BSTAR;
@@ -28,18 +29,18 @@ function [satrec, startmfe, stopmfe, deltamin] = GPxml2rv(whichconst, opsmode,co
     satrec.ecco = struct.meanElements.ECCENTRICITY;
     satrec.argpo = deg2rad(struct.meanElements.ARG_OF_PERICENTER);
     satrec.mo = deg2rad(struct.meanElements.MEAN_ANOMALY);
-    satrec.no =  struct.meanElements.MEAN_MOTION / xpdotp;
+    
 
-    tumin = consts(1);
+    %tumin = consts(1);
 
-    satrec.a    = (satrec.no*tumin)^(-2/3);
-
-    satrec.alta = satrec.a*(1.0 + satrec.ecco) - 1.0;
-    satrec.altp = satrec.a*(1.0 - satrec.ecco) - 1.0;
+%     satrec.a    = (satrec.no*tumin)^(-2/3);
+% 
+%     satrec.alta = satrec.a*(1.0 + satrec.ecco) - 1.0;
+%     satrec.altp = satrec.a*(1.0 - satrec.ecco) - 1.0;
 
 
 
     sgp4epoch = satrec.jdsatepoch - 2433281.5; % days since 0 Jan 1950
-    [satrec] = sgp4init( whichconst, opsmode, satrec, satrec.jdsatepoch-2433281.5, satrec.bstar, ...
+    [satrec] = sgp4init( whichconst, opsmode, satrec, sgp4epoch, satrec.bstar, ...
         satrec.ndot, satrec.nddot, satrec.ecco, satrec.argpo, satrec.inclo, satrec.mo, satrec.no, ...
         satrec.nodeo);

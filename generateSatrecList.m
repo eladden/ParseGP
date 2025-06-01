@@ -157,7 +157,7 @@ for i = 1:numberOfsats
         continue
     end
     % Genetate the R and v
-    satrec = GPxml2rv(whichconsts,'i',consts,satstructxml);
+    satrec = GPxml2rv(whichconsts,'a',consts,satstructxml);
     satrecList(listCount) = satrec;
     listCount = listCount+1;
 end %end for
