@@ -1,4 +1,4 @@
-function [m,A,epoch,r,v,satrecList] = generateList(filename, timefilecreated,maxdur, decaytime,consts,whichconsts,current, minA, maxA)
+function [m,A,epoch,r,v,satrecList] = generateList(filename, timefilecreated,maxdur, decaytime,whichconsts,current, minA, maxA)
 %This function generates a list of satellites from an xml file.
 %Usage:
 % [m,A,epoch,r,v,satrecList] = generateList(filename, timefilecreated,maxdur, decaytime,consts,whichconsts)
@@ -179,7 +179,7 @@ for i = 1:numberOfsats
         continue
     end
     % Genetate the R and v
-    satrec = GPxml2rv(whichconsts,'i',consts,satstructxml);
+    satrec = GPxml2rv(whichconsts,'i',satstructxml);
     ep_ = satstructxml.meanElements.EPOCH;
     new_satrec = sgp4(satrec,decaytime); %check that it does not decay within half a year
     if new_satrec.error
