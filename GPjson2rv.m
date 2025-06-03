@@ -1,4 +1,4 @@
-function [satrec, startmfe, stopmfe, deltamin] = GPjson2rv(whichconst, opsmode,consts, struct)
+function [satrec, startmfe, stopmfe, deltamin] = GPjson2rv(whichconst, opsmode, struct)
 %This function replaces the old twoline2rv.m that was used to read two
 %strings of TLE and produced the satrec structure used the the SGP4
 %implementation.
@@ -30,12 +30,12 @@ function [satrec, startmfe, stopmfe, deltamin] = GPjson2rv(whichconst, opsmode,c
     satrec.mo = deg2rad(struct.MEAN_ANOMALY);
     satrec.no =  struct.MEAN_MOTION / xpdotp;
 
-    tumin = consts(1);
-
-    satrec.a    = (satrec.no*tumin)^(-2/3);
-
-    satrec.alta = satrec.a*(1.0 + satrec.ecco) - 1.0;
-    satrec.altp = satrec.a*(1.0 - satrec.ecco) - 1.0;
+%     tumin = consts(1);
+% 
+%     satrec.a    = (satrec.no*tumin)^(-2/3);
+% 
+%     satrec.alta = satrec.a*(1.0 + satrec.ecco) - 1.0;
+%     satrec.altp = satrec.a*(1.0 - satrec.ecco) - 1.0;
 
 
 
