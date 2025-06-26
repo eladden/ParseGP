@@ -169,7 +169,7 @@ for i = 1:numberOfsats
     if ~current
         satParamsNames = [satstructxml.userDefinedParameters.USER_DEFINED.parameterAttribute];
         decayPlace = find(satParamsNames == "DECAY_DATE");
-        if isa(satstructxml.userDefinedParameters.USER_DEFINED(decayPlace).Text,"missing") %check if it already decayed
+        if ~isa(satstructxml.userDefinedParameters.USER_DEFINED(decayPlace).Text,"missing") %check if it already decayed
             numOfDecayed = numOfDecayed +1;
             continue
         end
@@ -181,11 +181,12 @@ for i = 1:numberOfsats
     % Genetate the R and v
     satrec = GPxml2rv(whichconsts,'i',satstructxml);
     ep_ = satstructxml.meanElements.EPOCH;
-    new_satrec = sgp4(satrec,decaytime); %check that it does not decay within half a year
+    new_satrec = sgp4(satrec,decaytime); %check that it does not decay
     if new_satrec.error
         numOfDecayed = numOfDecayed +1;
         continue
     end
+
     [~,r_,v_] = sgp4(satrec,0);%,consts);
 
     %check if the data has RCS_SIZE]
